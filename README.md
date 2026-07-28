@@ -1,6 +1,13 @@
 # 📚 Interactive Playwright SDET Study Planner
 
-Welcome to your **60 Days Master Plan for Playwright**! This is a modern, premium, interactive dashboard designed to help you follow your study roadmaps systematically, record notes, set start dates, and track your progress through all **93 topics** across **12 modules**.
+### 🌐 [Open the live tracker →](https://ghanendra-sdet.github.io/60-Days-Master-Plan-for-Playwright/)
+
+Welcome to your **Playwright SDET Master Plan**! This is a modern, premium, interactive dashboard designed to help you follow your study roadmap systematically, record notes, set start dates, and track your progress through all **94 topics** across **10 modules** — plus a second tracked view for a companion Udemy course.
+
+> [!NOTE]
+> This repo is currently named "60 Days," but the live plan has grown to a 90-day structure since
+> it was first created — the tracker itself (`data.js`) is the source of truth for the real
+> content. Renaming the repo to match is a separate decision, not done as part of this pass.
 
 ## ✨ Features
 
