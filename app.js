@@ -1,5 +1,5 @@
 /* ─────────────────────────────────────────────
-   Playwright SDET Study Tracker — app.js v4
+   Playwright Mastery Tracker — app.js v4
    Dual Tracker: 90-Day Plan + Udemy Course
 ───────────────────────────────────────────── */
 
