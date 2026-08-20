@@ -1,0 +1,1817 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Playwright Mastery Tracker</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap"
+    rel="stylesheet" />
+  <style>
+    /* ════════════════════════════════════
+       TOKENS — DARK MODE (default)
+    ════════════════════════════════════ */
+    :root {
+      /* Backgrounds — warm deep slate, NOT pure black */
+      --bg: #0f1117;
+      --bg2: #181c27;
+      --bg3: #1e2333;
+
+      /* Surfaces — layered glass effect */
+      --surface: rgba(255, 255, 255, .05);
+      --surface2: rgba(255, 255, 255, .09);
+      --surface3: rgba(255, 255, 255, .13);
+
+      /* Borders */
+      --border: rgba(255, 255, 255, .09);
+      --border2: rgba(255, 255, 255, .16);
+
+      /* Text hierarchy */
+      --text1: #f0f4ff;
+      /* primary — crisp blue-white */
+      --text2: #8a97b5;
+      /* secondary */
+      --text3: #4e5c7a;
+      /* muted/placeholder */
+
+      /* Accent palette */
+      --cyan: #38bdf8;
+      /* sky-400 — brighter, more readable */
+      --cyan-dim: rgba(56, 189, 248, .13);
+      --cyan-glow: rgba(56, 189, 248, .25);
+      --purple: #c084fc;
+      /* purple-400 */
+      --purple-dim: rgba(192, 132, 252, .13);
+      --green: #4ade80;
+      /* green-400 */
+      --green-dim: rgba(74, 222, 128, .13);
+      --green-glow: rgba(74, 222, 128, .25);
+      --amber: #fbbf24;
+
+      /* Shadows */
+      --shadow: 0 8px 32px rgba(0, 0, 0, .6);
+      --shadow-sm: 0 2px 10px rgba(0, 0, 0, .4);
+
+      /* Misc */
+      --r-lg: 14px;
+      --r-md: 10px;
+      --r-sm: 6px;
+      --ease: cubic-bezier(.4, 0, .2, 1);
+      --sans: 'Inter', system-ui, sans-serif;
+      --mono: 'JetBrains Mono', monospace;
+
+      /* Body gradient */
+      --body-bg: linear-gradient(135deg, #0f1117 0%, #151a28 50%, #0f1117 100%);
+    }
+
+    /* ════════════════════════════════════
+       TOKENS — LIGHT MODE
+    ════════════════════════════════════ */
+    [data-theme="light"] {
+      /* Backgrounds — warm white, not harsh bright white */
+      --bg: #f6f7fb;
+      --bg2: #ffffff;
+      --bg3: #eef1f8;
+
+      /* Surfaces */
+      --surface: rgba(255, 255, 255, .85);
+      --surface2: rgba(255, 255, 255, 1);
+      --surface3: rgba(235, 239, 250, .8);
+
+      /* Borders */
+      --border: rgba(15, 20, 50, .09);
+      --border2: rgba(15, 20, 50, .16);
+
+      /* Text hierarchy */
+      --text1: #0d1425;
+      /* deep navy, not pure black */
+      --text2: #3d4f70;
+      --text3: #8a97b5;
+
+      /* Accents stay vibrant */
+      --cyan: #0284c7;
+      /* sky-600 — darker for light bg contrast */
+      --cyan-dim: rgba(2, 132, 199, .1);
+      --cyan-glow: rgba(2, 132, 199, .2);
+      --purple: #7c3aed;
+      /* violet-700 */
+      --purple-dim: rgba(124, 58, 237, .1);
+      --green: #16a34a;
+      /* green-700 */
+      --green-dim: rgba(22, 163, 74, .1);
+      --green-glow: rgba(22, 163, 74, .2);
+      --amber: #d97706;
+
+      /* Shadows — soft */
+      --shadow: 0 8px 32px rgba(15, 20, 50, .12);
+      --shadow-sm: 0 2px 10px rgba(15, 20, 50, .08);
+
+      /* Body gradient */
+      --body-bg: linear-gradient(135deg, #f0f4fb 0%, #f8faff 50%, #eef2f9 100%);
+    }
+
+    /* ════════════════════════════════════
+       RESET
+    ════════════════════════════════════ */
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      font-family: var(--sans);
+      background: var(--body-bg);
+      background-attachment: fixed;
+      color: var(--text1);
+      min-height: 100vh;
+      line-height: 1.6;
+      transition: background .4s var(--ease), color .25s var(--ease);
+    }
+
+    ::-webkit-scrollbar {
+      width: 5px;
+      height: 5px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: var(--border2);
+      border-radius: 99px;
+    }
+
+    /* ════════════════════════════════════
+       LAYOUT
+    ════════════════════════════════════ */
+    .layout {
+      display: flex;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    /* ── SIDEBAR ── */
+    .sidebar {
+      width: 280px;
+      flex-shrink: 0;
+      background: var(--bg2);
+      border-right: 1px solid var(--border2);
+      display: flex;
+      flex-direction: column;
+      overflow-y: auto;
+      padding: 24px 18px;
+      gap: 22px;
+      transition: background .4s var(--ease), border-color .4s;
+    }
+
+    /* Logo */
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .logo-icon {
+      width: 38px;
+      height: 38px;
+      border-radius: var(--r-md);
+      flex-shrink: 0;
+      background: linear-gradient(135deg, var(--cyan), var(--purple));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .logo-icon svg {
+      width: 20px;
+      height: 20px;
+      stroke: #fff;
+      fill: none;
+      stroke-width: 2.2;
+    }
+
+    .logo-text h1 {
+      font-size: .88rem;
+      font-weight: 800;
+      letter-spacing: -.01em;
+    }
+
+    .logo-text p {
+      font-size: .7rem;
+      color: var(--text2);
+      font-weight: 500;
+    }
+
+    /* Progress ring */
+    .ring-card {
+      background: var(--surface2);
+      border: 1px solid var(--border2);
+      border-radius: var(--r-lg);
+      padding: 18px 16px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+      text-align: center;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .ring-wrap {
+      position: relative;
+      width: 106px;
+      height: 106px;
+    }
+
+    .ring-svg {
+      width: 106px;
+      height: 106px;
+    }
+
+    .ring-bg {
+      fill: none;
+      stroke: var(--border2);
+      stroke-width: 8;
+    }
+
+    .ring-val {
+      fill: none;
+      stroke: url(#rg);
+      stroke-width: 8;
+      stroke-linecap: round;
+      stroke-dasharray: 295.31;
+      /* 2π×47 */
+      stroke-dashoffset: 295.31;
+      transform: rotate(-90deg);
+      transform-origin: center;
+      transition: stroke-dashoffset .7s var(--ease);
+    }
+
+    .ring-center {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .ring-pct {
+      font-size: 1.45rem;
+      font-weight: 900;
+      letter-spacing: -.04em;
+      background: linear-gradient(135deg, var(--cyan), var(--purple));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .ring-frac {
+      font-size: .68rem;
+      color: var(--text2);
+      font-weight: 600;
+    }
+
+    .ring-lbl {
+      font-size: .8rem;
+      font-weight: 700;
+      color: var(--text1);
+    }
+
+    .ring-sub {
+      font-size: .68rem;
+      color: var(--text2);
+    }
+
+    /* Nav */
+    .nav {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+      flex: 1;
+    }
+
+    .nav-btn {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      padding: 8px 11px;
+      border-radius: var(--r-md);
+      cursor: pointer;
+      font-size: .84rem;
+      font-weight: 500;
+      color: var(--text2);
+      border: 1px solid transparent;
+      user-select: none;
+      transition: all .18s var(--ease);
+    }
+
+    .nav-btn svg {
+      width: 15px;
+      height: 15px;
+      stroke: currentColor;
+      fill: none;
+      stroke-width: 2;
+      flex-shrink: 0;
+    }
+
+    .nav-btn:hover {
+      color: var(--text1);
+      background: var(--surface2);
+    }
+
+    .nav-btn.active {
+      color: var(--cyan);
+      background: var(--cyan-dim);
+      border-color: rgba(34, 211, 238, .2);
+      font-weight: 600;
+    }
+
+    /* Sidebar footer */
+    .sidebar-foot {
+      border-top: 1px solid var(--border);
+      padding-top: 14px;
+    }
+
+    /* Theme toggle — icon pill */
+    .theme-btn {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 8px 12px;
+      border-radius: var(--r-md);
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--text2);
+      font-family: var(--sans);
+      font-size: .82rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all .2s;
+    }
+
+    .theme-btn:hover {
+      color: var(--text1);
+      border-color: var(--border2);
+      background: var(--surface2);
+    }
+
+    .theme-btn svg {
+      width: 16px;
+      height: 16px;
+      stroke: currentColor;
+      fill: none;
+      stroke-width: 2;
+      flex-shrink: 0;
+    }
+
+    /* ── MAIN ── */
+    .main {
+      flex: 1;
+      overflow-y: auto;
+      overflow-x: hidden;
+    }
+
+    .main-inner {
+      max-width: 940px;
+      margin: 0 auto;
+      padding: 28px 26px 56px;
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+
+    /* Search */
+    .topbar {
+      display: flex;
+      gap: 14px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .search-wrap {
+      position: relative;
+      flex: 1;
+      min-width: 180px;
+    }
+
+    .search-wrap svg {
+      position: absolute;
+      left: 11px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 15px;
+      height: 15px;
+      stroke: var(--text3);
+      fill: none;
+      stroke-width: 2;
+      pointer-events: none;
+    }
+
+    .search-input {
+      width: 100%;
+      padding: 9px 12px 9px 34px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--r-md);
+      color: var(--text1);
+      font-family: var(--sans);
+      font-size: .875rem;
+      transition: border-color .2s, box-shadow .2s;
+    }
+
+    .search-input::placeholder {
+      color: var(--text3);
+    }
+
+    .search-input:focus {
+      outline: none;
+      border-color: var(--cyan);
+      box-shadow: 0 0 0 3px rgba(34, 211, 238, .12);
+    }
+
+    /* Stats */
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+    }
+
+    .stat-card {
+      background: var(--bg2);
+      border: 1px solid var(--border2);
+      border-radius: var(--r-lg);
+      padding: 14px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      box-shadow: var(--shadow-sm);
+      transition: border-color .2s, transform .2s, box-shadow .2s;
+    }
+
+    .stat-card:hover {
+      border-color: var(--cyan);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 24px rgba(0, 0, 0, .3);
+    }
+
+    .stat-icon {
+      width: 34px;
+      height: 34px;
+      border-radius: var(--r-sm);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 4px;
+    }
+
+    .stat-icon svg {
+      width: 17px;
+      height: 17px;
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 2.2;
+    }
+
+    .stat-icon.cyan {
+      background: var(--cyan-dim);
+      color: var(--cyan);
+    }
+
+    .stat-icon.purple {
+      background: var(--purple-dim);
+      color: var(--purple);
+    }
+
+    .stat-icon.green {
+      background: var(--green-dim);
+      color: var(--green);
+    }
+
+    .stat-val {
+      font-size: 1.5rem;
+      font-weight: 900;
+      letter-spacing: -.04em;
+      line-height: 1.1;
+    }
+
+    .stat-lbl {
+      font-size: .73rem;
+      color: var(--text2);
+      font-weight: 500;
+      margin-top: 1px;
+    }
+
+    /* Section header */
+    .sec-hdr {
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 12px;
+    }
+
+    .sec-hdr h2 {
+      font-size: 1.25rem;
+      font-weight: 800;
+      letter-spacing: -.025em;
+    }
+
+    .sec-hdr p {
+      font-size: .8rem;
+      color: var(--text2);
+      margin-top: 3px;
+    }
+
+    /* ── MODULE ACCORDION ── */
+    .modules {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .module-card {
+      background: var(--bg2);
+      border: 1px solid var(--border2);
+      border-radius: var(--r-lg);
+      overflow: hidden;
+      box-shadow: var(--shadow-sm);
+      transition: border-color .25s, box-shadow .25s;
+    }
+
+    .module-card.expanded {
+      border-color: var(--cyan);
+      box-shadow: 0 0 0 1px var(--cyan), var(--shadow-sm);
+    }
+
+    .module-head {
+      padding: 14px 18px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      cursor: pointer;
+      user-select: none;
+      transition: background .15s;
+    }
+
+    .module-head:hover {
+      background: var(--surface2);
+    }
+
+    .module-num {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      background: var(--bg2);
+      border: 1px solid var(--border2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: .68rem;
+      font-weight: 700;
+      color: var(--text2);
+      flex-shrink: 0;
+      font-family: var(--mono);
+    }
+
+    .module-card.expanded .module-num {
+      background: var(--cyan-dim);
+      border-color: rgba(34, 211, 238, .3);
+      color: var(--cyan);
+    }
+
+    .module-info {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .module-name {
+      font-size: .9rem;
+      font-weight: 700;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .module-meta {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 4px;
+    }
+
+    .module-bar-bg {
+      flex: 1;
+      height: 4px;
+      background: var(--border2);
+      border-radius: 99px;
+      overflow: hidden;
+      max-width: 100px;
+    }
+
+    .module-bar-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--cyan), var(--purple));
+      border-radius: 99px;
+      width: 0%;
+      transition: width .5s var(--ease);
+    }
+
+    .module-pct {
+      font-size: .68rem;
+      font-weight: 600;
+      color: var(--text2);
+      white-space: nowrap;
+    }
+
+    .module-done-badge {
+      font-size: .62rem;
+      font-weight: 700;
+      padding: 2px 7px;
+      border-radius: 99px;
+      background: var(--green-dim);
+      color: var(--green);
+      border: 1px solid rgba(52, 211, 153, .2);
+    }
+
+    .chevron {
+      width: 17px;
+      height: 17px;
+      stroke: var(--text3);
+      fill: none;
+      stroke-width: 2.5;
+      flex-shrink: 0;
+      transition: transform .3s var(--ease);
+    }
+
+    .module-card.expanded .chevron {
+      transform: rotate(180deg);
+      stroke: var(--cyan);
+    }
+
+    /* Accordion body */
+    .module-body {
+      overflow: hidden;
+      max-height: 0;
+      border-top: 1px solid transparent;
+      transition: max-height .4s var(--ease), border-color .3s;
+    }
+
+    .module-card.expanded .module-body {
+      border-top-color: var(--border);
+    }
+
+    .module-body-inner {
+      padding: 16px 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    /* ── MODULE INFO PANEL ── */
+    .mod-info-panel {
+      background: var(--bg3, var(--bg));
+      border: 1px solid var(--border);
+      border-radius: var(--r-md);
+      padding: 16px 18px;
+      margin-bottom: 4px;
+    }
+
+    .mod-subtitle {
+      font-size: .8rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      color: var(--cyan);
+      margin-bottom: 14px;
+    }
+
+    .mod-info-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+
+    @media (max-width: 640px) {
+      .mod-info-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .mod-info-col {}
+
+    .mod-info-col-title {
+      font-size: .68rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .07em;
+      color: var(--text3);
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 5px;
+      margin-bottom: 10px;
+    }
+
+    .mod-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+    }
+
+    .mod-list li {
+      display: flex;
+      gap: 8px;
+      align-items: flex-start;
+      font-size: .84rem;
+      line-height: 1.45;
+      color: var(--text2);
+    }
+
+    .mod-list li .bullet-key {
+      color: var(--cyan);
+      flex-shrink: 0;
+      font-size: 1rem;
+      line-height: 1.2;
+    }
+
+    .mod-list li .bullet-project {
+      color: var(--purple);
+      flex-shrink: 0;
+      font-size: .8rem;
+      line-height: 1.5;
+    }
+
+    .mod-divider {
+      border: none;
+      border-top: 1px solid var(--border);
+      margin: 14px 0 4px;
+    }
+
+    /* ── DAY ROW ── */
+    .day-row {
+      display: grid;
+      grid-template-columns: 22px 64px 1fr auto;
+      align-items: center;
+      gap: 12px;
+      padding: 11px 14px;
+      border-radius: var(--r-md);
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      transition: border-color .2s, background .2s, box-shadow .2s;
+    }
+
+    .day-row:hover {
+      border-color: var(--border2);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, .15);
+    }
+
+    .day-row.done {
+      border-color: var(--green-dim);
+      background: rgba(74, 222, 128, .05);
+    }
+
+    /* Checkbox */
+    .cb-input {
+      display: none;
+    }
+
+    .cb-label {
+      width: 20px;
+      height: 20px;
+      border: 2px solid var(--text3);
+      border-radius: 5px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all .2s var(--ease);
+    }
+
+    .cb-label:hover {
+      border-color: var(--green);
+      box-shadow: 0 0 0 3px var(--green-dim);
+    }
+
+    .cb-label svg {
+      width: 11px;
+      height: 11px;
+      stroke: #fff;
+      stroke-width: 3;
+      fill: none;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      opacity: 0;
+      transform: scale(.4);
+      transition: all .2s var(--ease);
+    }
+
+    .cb-input:checked+.cb-label {
+      background: var(--green);
+      border-color: var(--green);
+      box-shadow: 0 0 10px var(--green-glow);
+    }
+
+    .cb-input:checked+.cb-label svg {
+      opacity: 1;
+      transform: scale(1);
+    }
+
+    /* Day badge */
+    .day-badge {
+      font-family: var(--mono);
+      font-size: .68rem;
+      font-weight: 600;
+      padding: 3px 7px;
+      border-radius: var(--r-sm);
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      color: var(--text2);
+      white-space: nowrap;
+      text-align: center;
+    }
+
+    .day-row.done .day-badge {
+      background: var(--green-dim);
+      border-color: rgba(52, 211, 153, .22);
+      color: var(--green);
+    }
+
+    /* Day info */
+    .day-info {
+      min-width: 0;
+    }
+
+    .day-topic {
+      font-size: .875rem;
+      font-weight: 600;
+      line-height: 1.3;
+      transition: color .2s;
+    }
+
+    .day-row.done .day-topic {
+      text-decoration: line-through;
+      color: var(--text3);
+    }
+
+    .day-details {
+      font-size: .75rem;
+      color: var(--text2);
+      margin-top: 2px;
+    }
+
+    /* Day inputs */
+    .day-inputs {
+      display: flex;
+      gap: 7px;
+      flex-shrink: 0;
+    }
+
+    .field {
+      padding: 6px 10px;
+      background: var(--bg3, var(--bg2));
+      border: 1px solid var(--border2);
+      border-radius: var(--r-sm);
+      color: var(--text1);
+      font-family: var(--sans);
+      font-size: .78rem;
+      transition: border-color .2s, box-shadow .2s;
+    }
+
+    .field::placeholder {
+      color: var(--text3);
+    }
+
+    .field:focus {
+      outline: none;
+      border-color: var(--cyan);
+      box-shadow: 0 0 0 2px var(--cyan-glow);
+    }
+
+    .field-date {
+      width: 100px;
+    }
+
+    .field-notes {
+      width: 170px;
+    }
+
+    /* Empty state */
+    .empty {
+      text-align: center;
+      padding: 52px 20px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--r-lg);
+    }
+
+    .empty h3 {
+      font-size: .95rem;
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+
+    .empty p {
+      font-size: .8rem;
+      color: var(--text2);
+    }
+
+    footer {
+      font-size: .7rem;
+      color: var(--text3);
+      text-align: center;
+      padding-top: 8px;
+      border-top: 1px solid var(--border);
+    }
+
+    /* ── FAB ── */
+    .fab {
+      position: fixed;
+      bottom: 26px;
+      right: 26px;
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--cyan), var(--purple));
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 20px rgba(34, 211, 238, .35);
+      z-index: 90;
+      transition: transform .25s var(--ease), box-shadow .25s;
+    }
+
+    .fab:hover {
+      transform: scale(1.1);
+      box-shadow: 0 6px 28px rgba(34, 211, 238, .5);
+    }
+
+    .fab svg {
+      width: 21px;
+      height: 21px;
+      stroke: #fff;
+      fill: none;
+      stroke-width: 2;
+    }
+
+    /* ── DRAWER ── */
+    .drawer {
+      position: fixed;
+      top: 0;
+      right: -410px;
+      width: 390px;
+      height: 100vh;
+      background: var(--bg2);
+      border-left: 1px solid var(--border);
+      padding: 26px 22px;
+      overflow-y: auto;
+      z-index: 100;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      box-shadow: -8px 0 32px rgba(0, 0, 0, .5);
+      transition: right .4s var(--ease);
+    }
+
+    .drawer.open {
+      right: 0;
+    }
+
+    .drawer-hdr {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .drawer-title {
+      font-size: .95rem;
+      font-weight: 800;
+    }
+
+    .drawer-close {
+      background: none;
+      border: none;
+      color: var(--text2);
+      font-size: 1.3rem;
+      cursor: pointer;
+      line-height: 1;
+      transition: color .15s;
+    }
+
+    .drawer-close:hover {
+      color: var(--text1);
+    }
+
+    .cheat-grp {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .cheat-grp-lbl {
+      font-size: .65rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      color: var(--cyan);
+      border-bottom: 1px solid rgba(34, 211, 238, .15);
+      padding-bottom: 4px;
+    }
+
+    .cheat-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--r-md);
+      padding: 9px 11px;
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+
+    .cheat-lbl {
+      font-size: .72rem;
+      font-weight: 600;
+      color: var(--text2);
+    }
+
+    .cheat-code {
+      font-family: var(--mono);
+      font-size: .69rem;
+      background: var(--bg);
+      padding: 5px 7px;
+      border-radius: var(--r-sm);
+      color: var(--purple);
+      word-break: break-all;
+      display: block;
+    }
+
+    /* ── TOASTS ── */
+    .toast-area {
+      position: fixed;
+      bottom: 26px;
+      left: 26px;
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+      z-index: 110;
+      pointer-events: none;
+    }
+
+    .toast {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      padding: 9px 15px;
+      background: var(--bg2);
+      border: 1px solid rgba(52, 211, 153, .2);
+      border-radius: var(--r-md);
+      font-size: .8rem;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, .3);
+      animation: fadeUp .3s var(--ease) both;
+    }
+
+    .toast-icon {
+      color: var(--green);
+      font-size: .95rem;
+    }
+
+    @keyframes fadeUp {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 820px) {
+      .layout {
+        flex-direction: column;
+        height: auto;
+      }
+
+      .sidebar {
+        width: 100%;
+        height: auto;
+        padding: 16px;
+        gap: 14px;
+      }
+
+      .ring-card {
+        flex-direction: row;
+        justify-content: center;
+        gap: 18px;
+      }
+
+      .nav {
+        flex-direction: row;
+      }
+
+      .main {
+        overflow: visible;
+      }
+
+      .day-row {
+        grid-template-columns: 22px 60px 1fr;
+      }
+
+      .day-inputs {
+        grid-column: 3;
+        margin-top: 4px;
+      }
+    }
+
+    @media (max-width: 500px) {
+      .stats {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .day-inputs {
+        flex-direction: column;
+      }
+
+      .field-date,
+      .field-notes {
+        width: 100%;
+      }
+    }
+
+    /* ── TAB SWITCHER ── */
+    .tab-bar {
+      display: flex;
+      gap: 6px;
+      background: var(--bg2);
+      border: 1px solid var(--border2);
+      border-radius: var(--r-lg);
+      padding: 5px;
+    }
+
+    .tab-btn {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 9px 16px;
+      border-radius: var(--r-md);
+      border: none;
+      background: transparent;
+      color: var(--text2);
+      font-family: var(--sans);
+      font-size: .84rem;
+      font-weight: 600;
+      cursor: pointer;
+      user-select: none;
+      transition: all .2s var(--ease);
+    }
+
+    .tab-btn svg {
+      width: 16px;
+      height: 16px;
+      stroke: currentColor;
+      fill: none;
+      stroke-width: 2;
+      flex-shrink: 0;
+    }
+
+    .tab-btn:hover {
+      color: var(--text1);
+      background: var(--surface2);
+    }
+
+    .tab-btn.active {
+      background: var(--bg3, var(--bg));
+      color: var(--text1);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .tab-btn.active.plan {
+      color: var(--cyan);
+      border: 1px solid rgba(56, 189, 248, .25);
+    }
+
+    .tab-btn.active.udemy {
+      color: var(--purple);
+      border: 1px solid rgba(192, 132, 252, .25);
+    }
+
+    .tab-panel {
+      display: none;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .tab-panel.active {
+      display: flex;
+    }
+
+    /* ── UDEMY TOPIC ROW ── */
+    .udemy-row {
+      border-radius: var(--r-md);
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      overflow: hidden;
+      transition: border-color .2s;
+    }
+
+    .udemy-row:hover {
+      border-color: var(--border2);
+    }
+
+    .udemy-row.done {
+      border-color: var(--green-dim);
+      background: rgba(74, 222, 128, .04);
+    }
+
+    .udemy-row-main {
+      display: grid;
+      grid-template-columns: 22px 1fr auto;
+      align-items: center;
+      gap: 12px;
+      padding: 11px 14px;
+    }
+
+    .udemy-info {
+      min-width: 0;
+    }
+
+    .udemy-topic {
+      font-size: .875rem;
+      font-weight: 600;
+      line-height: 1.3;
+    }
+
+    .udemy-row.done .udemy-topic {
+      text-decoration: line-through;
+      color: var(--text3);
+    }
+
+    .udemy-details {
+      font-size: .74rem;
+      color: var(--text2);
+      margin-top: 2px;
+    }
+
+    .udemy-actions {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      flex-shrink: 0;
+    }
+
+    /* Code-note toggle button */
+    .code-toggle {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      padding: 5px 9px;
+      border-radius: var(--r-sm);
+      border: 1px solid var(--border2);
+      background: var(--bg3, var(--bg2));
+      color: var(--text3);
+      font-family: var(--mono);
+      font-size: .68rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all .2s;
+      white-space: nowrap;
+    }
+
+    .code-toggle:hover {
+      color: var(--purple);
+      border-color: var(--purple);
+    }
+
+    .code-toggle.has-code {
+      color: var(--purple);
+      border-color: rgba(192, 132, 252, .4);
+      background: var(--purple-dim);
+    }
+
+    .code-toggle svg {
+      width: 12px;
+      height: 12px;
+      stroke: currentColor;
+      fill: none;
+      stroke-width: 2;
+    }
+
+    /* Code notes panel */
+    .code-panel {
+      display: none;
+      border-top: 1px solid var(--border);
+      padding: 0;
+    }
+
+    .code-panel.open {
+      display: block;
+    }
+
+    .code-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px 14px;
+      background: var(--bg3, var(--bg));
+      border-bottom: 1px solid var(--border);
+    }
+
+    .code-header-lbl {
+      font-size: .68rem;
+      font-weight: 700;
+      color: var(--purple);
+      font-family: var(--mono);
+      text-transform: uppercase;
+      letter-spacing: .07em;
+    }
+
+    .code-close {
+      background: none;
+      border: none;
+      color: var(--text3);
+      cursor: pointer;
+      font-size: 1rem;
+      line-height: 1;
+      transition: color .15s;
+    }
+
+    .code-close:hover {
+      color: var(--text1);
+    }
+
+    .code-textarea {
+      width: 100%;
+      min-height: 140px;
+      padding: 12px 14px;
+      background: #0a0e1a;
+      border: none;
+      color: #c8d3f5;
+      font-family: var(--mono);
+      font-size: .78rem;
+      line-height: 1.65;
+      resize: vertical;
+      outline: none;
+      display: block;
+    }
+
+    [data-theme="light"] .code-textarea {
+      background: #1e2033;
+      color: #c8d3f5;
+    }
+
+    .code-textarea::placeholder {
+      color: #4a5568;
+    }
+
+    /* ── VIDEO SECTION ── */
+    .video-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--r-lg);
+      overflow: hidden;
+      transition: border-color .25s;
+    }
+
+    .video-card:hover {
+      border-color: var(--border2);
+    }
+
+    .video-header {
+      padding: 14px 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      cursor: pointer;
+      user-select: none;
+      transition: background .15s;
+    }
+
+    .video-header:hover {
+      background: var(--surface2);
+    }
+
+    .video-header-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .video-badge {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 32px;
+      height: 32px;
+      border-radius: var(--r-sm);
+      background: linear-gradient(135deg, #ff4e4e, #ff9000);
+      flex-shrink: 0;
+    }
+
+    .video-badge svg {
+      width: 16px;
+      height: 16px;
+      stroke: #fff;
+      fill: #fff;
+    }
+
+    .video-header-text h3 {
+      font-size: .9rem;
+      font-weight: 700;
+    }
+
+    .video-header-text p {
+      font-size: .72rem;
+      color: var(--text2);
+      margin-top: 1px;
+    }
+
+    .video-toggle {
+      width: 16px;
+      height: 16px;
+      stroke: var(--text3);
+      fill: none;
+      stroke-width: 2.5;
+      flex-shrink: 0;
+      transition: transform .3s var(--ease);
+    }
+
+    .video-card.open .video-toggle {
+      transform: rotate(180deg);
+      stroke: var(--cyan);
+    }
+
+    .video-body {
+      overflow: hidden;
+      max-height: 0;
+      border-top: 1px solid transparent;
+      transition: max-height .45s var(--ease), border-color .3s;
+    }
+
+    .video-card.open .video-body {
+      border-top-color: var(--border);
+    }
+
+    .video-wrapper {
+      position: relative;
+      width: 100%;
+      padding-bottom: 56.25%;
+      /* 16:9 */
+      height: 0;
+      background: #000;
+    }
+
+    .video-wrapper iframe {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      border: none;
+    }
+
+    .video-note {
+      padding: 10px 18px;
+      font-size: .72rem;
+      color: var(--text2);
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      background: var(--bg2);
+    }
+
+    .video-note svg {
+      width: 13px;
+      height: 13px;
+      stroke: var(--amber);
+      fill: none;
+      stroke-width: 2;
+      flex-shrink: 0;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="layout">
+
+    <!-- ═══════ SIDEBAR ═══════ -->
+    <aside class="sidebar">
+      <div class="logo">
+        <div class="logo-icon">
+          <svg viewBox="0 0 24 24">
+            <path d="M9 12l2 2 4-4M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+        </div>
+        <div class="logo-text">
+          <h1>Playwright</h1>
+          <p>Mastery Tracker</p>
+        </div>
+      </div>
+
+      <!-- Radial Progress -->
+      <div class="ring-card">
+        <div class="ring-wrap">
+          <svg class="ring-svg" viewBox="0 0 106 106">
+            <defs>
+              <linearGradient id="rg" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#22d3ee" />
+                <stop offset="100%" stop-color="#a78bfa" />
+              </linearGradient>
+            </defs>
+            <circle class="ring-bg" cx="53" cy="53" r="47" />
+            <circle class="ring-val" id="ring-val" cx="53" cy="53" r="47" />
+          </svg>
+          <div class="ring-center">
+            <span class="ring-pct" id="ring-pct">0%</span>
+            <span class="ring-frac" id="ring-frac">0/94</span>
+          </div>
+        </div>
+        <div>
+          <div class="ring-lbl">Overall Progress</div>
+          <div class="ring-sub">Mark topics to track your journey</div>
+        </div>
+      </div>
+
+      <!-- Navigation filters -->
+      <nav class="nav">
+        <div class="nav-btn active" id="nav-all">
+          <svg viewBox="0 0 24 24">
+            <path d="M4 6h16M4 12h16M4 18h16" />
+          </svg>
+          All Modules
+        </div>
+        <div class="nav-btn" id="nav-todo">
+          <svg viewBox="0 0 24 24">
+            <circle cx="12" cy="12" r="10" />
+            <path d="M12 8v4l2 2" />
+          </svg>
+          Remaining
+        </div>
+        <div class="nav-btn" id="nav-done">
+          <svg viewBox="0 0 24 24">
+            <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          Completed
+        </div>
+      </nav>
+
+      <!-- Practice Link -->
+      <div class="sidebar-foot">
+        <a class="nav-btn" href="https://ghanendra-sdet.github.io/automation-playground/" target="_blank"
+          rel="noopener noreferrer" style="text-decoration:none;">
+          <svg viewBox="0 0 24 24">
+            <path
+              d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z" />
+          </svg>
+          Practice on Automation Playground
+        </a>
+      </div>
+
+      <!-- Theme Toggle -->
+      <div class="sidebar-foot">
+        <button class="theme-btn" id="theme-btn">
+          <!-- icon swapped by JS -->
+          <svg id="theme-icon" viewBox="0 0 24 24">
+            <path
+              d="M12 3v1m0 16v1M4.22 4.22l.71.71m12.73 12.73.71.71M3 12h1m16 0h1M4.22 19.78l.71-.71m12.73-12.73.71-.71M12 7a5 5 0 100 10 5 5 0 000-10z" />
+          </svg>
+          <span id="theme-lbl">Light Mode</span>
+        </button>
+      </div>
+    </aside>
+
+    <!-- ═══════ MAIN ═══════ -->
+    <main class="main">
+      <div class="main-inner">
+
+        <!-- ══ DEMO VIDEO ══ -->
+        <div class="video-card" id="video-card">
+          <div class="video-header" id="video-header">
+            <div class="video-header-left">
+              <div class="video-badge">
+                <svg viewBox="0 0 24 24">
+                  <polygon points="5 3 19 12 5 21 5 3" stroke="none" />
+                </svg>
+              </div>
+              <div class="video-header-text">
+                <h3>📹 Demo Walkthrough Video</h3>
+                <p>Watch the full dashboard demo — click to expand or collapse</p>
+              </div>
+            </div>
+            <svg class="video-toggle" viewBox="0 0 24 24">
+              <path d="M6 9l6 6 6-6" />
+            </svg>
+          </div>
+          <div class="video-body" id="video-body">
+            <div class="video-wrapper">
+              <iframe src="https://drive.google.com/file/d/1EUOOtKs6jRiv5eJUmy_OF-rwef9KzPqD/preview"
+                allow="autoplay; fullscreen" allowfullscreen title="Playwright Mastery Tracker Dashboard Demo"></iframe>
+            </div>
+            <div class="video-note">
+              <svg viewBox="0 0 24 24">
+                <circle cx="12" cy="12" r="10" />
+                <path d="M12 8v4m0 4h.01" />
+              </svg>
+              Video is hosted on Google Drive. If it doesn't load, open it directly:
+              <a href="https://drive.google.com/file/d/1EUOOtKs6jRiv5eJUmy_OF-rwef9KzPqD/view" target="_blank"
+                rel="noopener noreferrer" style="color:var(--cyan);text-decoration:none;font-weight:600;">Open in Drive
+                ↗</a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Search bar -->
+        <div class="topbar">
+          <div class="search-wrap">
+            <svg viewBox="0 0 24 24">
+              <circle cx="11" cy="11" r="8" />
+              <path d="M21 21l-4.35-4.35" />
+            </svg>
+            <input class="search-input" id="search" type="text" placeholder="Search day number, topic or keyword…"
+              autocomplete="off" />
+          </div>
+        </div>
+
+        <!-- Stats -->
+        <div class="stats">
+          <div class="stat-card">
+            <div class="stat-icon cyan">
+              <svg viewBox="0 0 24 24">
+                <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </div>
+            <div class="stat-val" id="s-done">0</div>
+            <div class="stat-lbl">Topics Completed</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon purple">
+              <svg viewBox="0 0 24 24">
+                <path
+                  d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+              </svg>
+            </div>
+            <div class="stat-val" id="s-mods">0</div>
+            <div class="stat-lbl">Modules Finished</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon green">
+              <svg viewBox="0 0 24 24">
+                <path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </div>
+            <div class="stat-val" id="s-left">94</div>
+            <div class="stat-lbl">Topics Remaining</div>
+          </div>
+        </div>
+
+        <!-- Section header + TABS -->
+        <div class="tab-bar">
+          <button class="tab-btn plan active" id="tab-plan">
+            <svg viewBox="0 0 24 24">
+              <path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01" />
+            </svg>
+            90&#8209;Day Master Plan
+          </button>
+          <button class="tab-btn udemy" id="tab-udemy">
+            <svg viewBox="0 0 24 24">
+              <path d="M12 14l9-5-9-5-9 5 9 5z" />
+              <path
+                d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z" />
+            </svg>
+            Udemy Course
+          </button>
+        </div>
+
+        <!-- ── TAB: 90-DAY PLAN ── -->
+        <div class="tab-panel active" id="panel-plan">
+          <div class="sec-hdr">
+            <h2>90‑Day Playwright (JS/TS) + AI Roadmap</h2>
+            <p>Tick each topic when done · Log start date &amp; notes · Progress auto-saves in your browser</p>
+          </div>
+          <div class="modules" id="modules"></div>
+        </div>
+
+        <!-- ── TAB: UDEMY COURSE ── -->
+        <div class="tab-panel" id="panel-udemy">
+          <div class="sec-hdr">
+            <h2>🎓 Udemy Course — Playwright with TypeScript</h2>
+            <p>Mark each video done · Save your notes &amp; code snippets per topic · All saved in your browser</p>
+          </div>
+          <div class="modules" id="udemy-modules"></div>
+        </div>
+
+        <footer>© 2026 Playwright Mastery Tracker — progress is saved in your browser and persists across server
+          restarts.</footer>
+      </div>
+    </main>
+  </div>
+
+  <!-- Cheat sheet FAB -->
+  <button class="fab" id="fab-open" aria-label="Playwright Quick Reference">
+    <svg viewBox="0 0 24 24">
+      <path
+        d="M9.663 17h4.673M12 3v1m6.364.364-.707.707M21 12h-1M4 12H3m3.343-5.657-.707-.707m2.828 9.9a5 5 0 113.536 0V21" />
+    </svg>
+  </button>
+
+  <!-- Cheat sheet drawer -->
+  <div class="drawer" id="drawer">
+    <div class="drawer-hdr">
+      <h3 class="drawer-title">⚡ Playwright Quick Reference</h3>
+      <button class="drawer-close" id="drawer-close" aria-label="Close">×</button>
+    </div>
+
+    <div class="cheat-grp">
+      <div class="cheat-grp-lbl">Locators</div>
+      <div class="cheat-card">
+        <div class="cheat-lbl">By Role</div> <code
+          class="cheat-code">page.getByRole('button', { name: 'Submit' })</code>
+      </div>
+      <div class="cheat-card">
+        <div class="cheat-lbl">By Text</div> <code class="cheat-code">page.getByText('Welcome back!')</code>
+      </div>
+      <div class="cheat-card">
+        <div class="cheat-lbl">By Test‑ID</div> <code class="cheat-code">page.getByTestId('login-btn')</code>
+      </div>
+      <div class="cheat-card">
+        <div class="cheat-lbl">By Label</div> <code class="cheat-code">page.getByLabel('Email address')</code>
+      </div>
+      <div class="cheat-card">
+        <div class="cheat-lbl">By Placeholder</div><code class="cheat-code">page.getByPlaceholder('Search…')</code>
+      </div>
+    </div>
+
+    <div class="cheat-grp">
+      <div class="cheat-grp-lbl">Interactions</div>
+      <div class="cheat-card">
+        <div class="cheat-lbl">Click</div> <code class="cheat-code">await locator.click()</code>
+      </div>
+      <div class="cheat-card">
+        <div class="cheat-lbl">Fill</div> <code class="cheat-code">await locator.fill('value')</code>
+      </div>
+      <div class="cheat-card">
+        <div class="cheat-lbl">Select Option</div> <code class="cheat-code">await locator.selectOption('value')</code>
+      </div>
+      <div class="cheat-card">
+        <div class="cheat-lbl">Press Key</div> <code class="cheat-code">await page.keyboard.press('Enter')</code>
+      </div>
+      <div class="cheat-card">
+        <div class="cheat-lbl">Hover</div> <code class="cheat-code">await locator.hover()</code>
+      </div>
+    </div>
+
+    <div class="cheat-grp">
+      <div class="cheat-grp-lbl">Assertions</div>
+      <div class="cheat-card">
+        <div class="cheat-lbl">Visible</div> <code class="cheat-code">await expect(locator).toBeVisible()</code>
+      </div>
+      <div class="cheat-card">
+        <div class="cheat-lbl">Have Text</div> <code class="cheat-code">await expect(locator).toHaveText('OK')</code>
+      </div>
+      <div class="cheat-card">
+        <div class="cheat-lbl">Have Value</div> <code class="cheat-code">await expect(input).toHaveValue('Jane')</code>
+      </div>
+      <div class="cheat-card">
+        <div class="cheat-lbl">URL</div> <code class="cheat-code">await expect(page).toHaveURL('/dashboard')</code>
+      </div>
+    </div>
+
+    <div class="cheat-grp">
+      <div class="cheat-grp-lbl">API & Network</div>
+      <div class="cheat-card">
+        <div class="cheat-lbl">Intercept & Abort</div><code
+          class="cheat-code">await page.route('**/*.png', r => r.abort())</code>
+      </div>
+      <div class="cheat-card">
+        <div class="cheat-lbl">Mock Response</div> <code
+          class="cheat-code">await page.route('**/api/users', r => r.fulfill({ status:200, json:[{id:1}] }))</code>
+      </div>
+      <div class="cheat-card">
+        <div class="cheat-lbl">API Request</div> <code
+          class="cheat-code">const res = await request.get('/api/users')\nawait expect(res).toBeOK()</code>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast area -->
+  <div class="toast-area" id="toasts"></div>
+
+  <script src="data.js"></script>
+  <script src="udemy_data.js"></script>
+  <script src="app.js"></script>
+</body>
+
+</html>
